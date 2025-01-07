@@ -1,6 +1,6 @@
 //This class is responsible for the User data, including queries that have to do with users
-const db = require("./database");
-const bcrypt = require("bcrypt");
+import db from './database.js';
+import bcrypt from 'bcrypt';
 
 class User {
     constructor(userId, username, email, password, createdTime) {
@@ -237,7 +237,7 @@ async function updateUserEmail(password, username, newEmail) {
         throw new Error("Verification failed");
     }
     const query = "update User set email = ? where username = ?";
-    const [values] = [newEmail, username];
+    const values = [newEmail, username];
 
     try {
         const [result] = await pool.query(query, values);
@@ -260,7 +260,7 @@ async function updateUsername(password, email, newUsername) {
         throw new Error("Verification failed");
     }
     const query = "update User set username = ? where email = ?";
-    const [values] = [newUsername, email];
+    const values = [newUsername, email];
 
     try {
         const [result] = await pool.query(query, values);
@@ -275,7 +275,7 @@ async function updateUsername(password, email, newUsername) {
     }
 }
 
-module.exports = {
+export default {
     registerUser,
     verifyingCredentials,
     verifyingEmailCredentials,
@@ -288,5 +288,5 @@ module.exports = {
     deleteUserByUsername,
     updateUserPassword,
     updateUserEmail,
-    updateUsername,
+    updateUsername
 };

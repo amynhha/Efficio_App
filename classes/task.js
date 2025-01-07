@@ -1,3 +1,6 @@
+//This class is responsible for the Task data, including queries that have to do with tasks
+import db from './database.js';
+
 class Task {
     constructor(taskId, title, description, status, deadline, priority, createdTime, updatedTime, userId, categoryId) {
         this.taskId = taskId;
@@ -54,7 +57,7 @@ async function addTask(taskData) {
     const {title, description, status, deadline, priority, userId, categoryId} = taskData;
     
     const query = "insert into Task(title, description, status, deadline, priority, userId, categoryId) values (?, ?, ?, ?, ?, ?, ?)";
-    const [values] = [title, description, status, deadline, priority, userId, categoryId];
+    const values = [title, description, status, deadline, priority, userId, categoryId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -96,9 +99,9 @@ async function getTaskByID(taskId) {
     }
 }
 
-async function getTasksByUser(userId) {
-    const query = "select * from Task where userId = ?";
-    const values = [userId];
+async function getTasksByUser(username) {
+    const query = "select * from Task where username = ?";
+    const values = [username];
 
     try {
         const [result] = await pool.query(query, values);
@@ -107,7 +110,7 @@ async function getTasksByUser(userId) {
         }
         return result;
     } catch (error) {
-        console.error("Error getting task by user ID:", error);
+        console.error("Error getting task by username:", error);
         throw error;
     }
 }
@@ -160,14 +163,13 @@ async function getTasksByStatus(status) {
     }
 }
 
-async function getTasksWithinOneWeek() {
-    const query = "select * from Task where deadline between curdate() and curdate() + interval 7 day";
-
+async function getTasksWithin(numDay) {
+    const query = "select * from Task where deadline between curdate() and curdate() + interval ? day";
     try {
-        const [rows] = await pool.query(query);
+        const [rows] = await pool.query(query, [numDay]);
         return rows;
     } catch (error) {
-        console.error('Error fetching tasks:', error);
+        console.error('Error getting tasks within specified days:', error);
         throw error;
     }
 }
@@ -190,7 +192,7 @@ async function deleteTaskById(taskId) {
 
 async function updateTaskPriority(taskId, priority) {
     const query = "update Task set priority = ? where taskId = ?";
-    const [values] = [priority, taskId];
+    const values = [priority, taskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -207,7 +209,7 @@ async function updateTaskPriority(taskId, priority) {
 
 async function updateTaskStatus(taskId, status) {
     const query = "update Task set status = ? where taskId = ?";
-    const [values] = [status, taskId];
+    const values = [status, taskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -224,7 +226,7 @@ async function updateTaskStatus(taskId, status) {
 
 async function updateTaskTitle(taskId, title) {
     const query = "update Task set title = ? where taskId = ?";
-    const [values] = [title, taskId];
+    const values = [title, taskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -241,7 +243,7 @@ async function updateTaskTitle(taskId, title) {
 
 async function updateTaskDescription(taskId, description) {
     const query = "update Task set description = ? where taskId = ?";
-    const [values] = [description, taskId];
+    const values = [description, taskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -258,7 +260,7 @@ async function updateTaskDescription(taskId, description) {
 
 async function updateTaskCategory(taskId, category) {
     const query = "update Task set category = ? where taskId = ?";
-    const [values] = [category, taskId];
+    const values = [category, taskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -275,7 +277,7 @@ async function updateTaskCategory(taskId, category) {
 
 async function updateTaskDeadline(taskId, deadline) {
     const query = "update Task set deadline = ? where taskId = ?";
-    const [values] = [deadline, taskId];
+    const values = [deadline, taskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -290,7 +292,7 @@ async function updateTaskDeadline(taskId, deadline) {
     }
 }
 
-module.exports = {
+export default {
     addTask,
     deleteTaskById,
     getAllTasks,
@@ -299,11 +301,11 @@ module.exports = {
     getTasksByCategory,
     getTasksByPriority,
     getTasksByStatus,
-    getTasksWithinOneWeek,
+    getTasksWithin,
     updateTaskPriority,
     updateTaskStatus,
     updateTaskTitle,
     updateTaskDescription,
     updateTaskCategory,
-    updateTaskDeadline,
+    updateTaskDeadline
 };

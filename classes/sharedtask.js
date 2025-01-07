@@ -1,3 +1,6 @@
+//This class is responsible for the Shared task data, including queries that have to do with shared tasks
+import db from './database.js';
+
 class Sharedtask {
     constructor(sharedtaskId, role, createdTime, updatedTime, taskId, userId) {
         this.sharedtaskId = sharedtaskId;
@@ -38,7 +41,7 @@ async function addSharedTask(sharedtaskData) {
     const {role, taskId, userId} = sharedtaskData;
     
     const query = "insert into Sharedtask(role, taskId, userId) values (?, ?, ?)";
-    const [values] = [role, taskId, userId];
+    const values = [role, taskId, userId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -168,7 +171,7 @@ async function deleteSharedTask(sharedtaskId, userId, role) {
 }
 
 async function deleteSharedTasksByTaskId(taskId) {
-    const query = "DELETE FROM Sharedtask WHERE taskId = ?";
+    const query = "delete from Sharedtask where taskId = ?";
     const values = [taskId];
 
     try {
@@ -183,10 +186,9 @@ async function deleteSharedTasksByTaskId(taskId) {
     }
 }
 
-
 async function updateSharedTaskRole(sharedTaskId, role) {
-    const query = "update Task set role = ? where sharedTaskId = ?";
-    const [values] = [role, sharedTaskId];
+    const query = "update Sharedtask set role = ? where sharedTaskId = ?";
+    const values = [role, sharedTaskId];
 
     try {
         const [result] = await pool.query(query, values);
@@ -201,7 +203,7 @@ async function updateSharedTaskRole(sharedTaskId, role) {
     }
 }
 
-module.exports = {
+export default {
     addSharedTask,
     deleteSharedTask,
     getAllSharedTasks,
