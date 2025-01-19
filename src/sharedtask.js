@@ -1,8 +1,8 @@
 //This class is responsible for the Shared task data, including queries that have to do with shared tasks
-import db from './database.js';
+import {db} from './database.js';
 
 class Sharedtask {
-    constructor(sharedtaskId, role, createdTime, updatedTime, taskId, userId) {
+    constructor(sharedtaskId, role, createdTime = null, updatedTime = null, taskId, userId) {
         this.sharedtaskId = sharedtaskId;
         this.role = role;
         this.createdTime = createdTime;
@@ -37,7 +37,7 @@ class Sharedtask {
     }
 }
 
-async function addSharedTask(sharedtaskData) {
+async function addSharedTask(sharedTaskId, sharedtaskData) {
     const {role, taskId, userId} = sharedtaskData;
     
     const query = "insert into Sharedtask(role, taskId, userId) values (?, ?, ?)";
@@ -48,23 +48,6 @@ async function addSharedTask(sharedtaskData) {
         return result.insertId
     } catch (error) {
         console.error("Error adding sharedtask:", error);
-        throw error;
-    }
-}
-
-async function isUserSharedTask(taskId, userId) {
-    const query = "select * from Sharedtask where taskId = ? and userId = ?";
-    const values = [taskId, userId];
-
-    try {
-        const [rows] = await db.query(query, values);
-        if (rows.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.error("Error checking shared task for user:", error);
         throw error;
     }
 }
@@ -199,7 +182,7 @@ async function updateSharedTaskRole(sharedTaskId, role) {
         return {message: "Role updated successfully"}; 
     } catch (error) {
         console.error("Error updating role by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -210,7 +193,6 @@ export default {
     getSharedTaskById,
     getSharedTasksByUser,
     updateSharedTaskRole,
-    isUserSharedTask,
     deleteSharedTasksByTaskId,
     getSharedTasksByRole,
     getUsersBySharedTask

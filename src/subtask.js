@@ -1,8 +1,8 @@
 //This class is responsible for the Subtask data, including queries that have to do with subtasks
-import db from './database.js';
+import {db} from './database.js';
 
 class Subtask {
-    constructor(SubtaskId, title, description, status, deadline, createdTime, updatedTime, createdUserId, assignedUserId) {
+    constructor(SubtaskId, title, description = null, status, deadline, createdTime = null, updatedTime = null, createdUserId, assignedUserId = null) {
         this.taskId = taskId;
         this.title = title;
         this.description = description;
@@ -53,7 +53,7 @@ async function addSubtask(taskId, subtaskData) {
     const {title, description, status, deadline, createdUserId, assignedUserId} = subtaskData;
     
     const query = "insert into Subtask(title, description, status, deadline, createdUserId, assignedUserId) values (?, ?, ?, ?, ?, ?)";
-    const values = [title, description, status, deadline, createdUserId, assignedUserId];
+    const values = [title, description ?? null, status ?? 'Pending', deadline, createdUserId, assignedUserId ?? null];
 
     try {
         const [result] = await db.query(query, values);
@@ -172,7 +172,7 @@ async function deleteSubtaskAssignedUser(subtaskId) {
         return {message: "Assigned user deleted successfully"}; 
     } catch (error) {
         console.error("Error deleting assigned user by subtaskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -188,7 +188,7 @@ async function getSubtasksWithin(numDay) {
 }
 
 async function updateSubtaskStatus(subtaskId, status) {
-    const query = "update Task set status = ? where subtaskId = ?";
+    const query = "update Subtask set status = ? where subtaskId = ?";
     const values = [status, subtaskId];
 
     try {
@@ -200,7 +200,7 @@ async function updateSubtaskStatus(subtaskId, status) {
         return {message: "Status updated successfully"}; 
     } catch (error) {
         console.error("Error updating status by subtaskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -217,7 +217,7 @@ async function updateSubtaskTitle(subtaskId, title) {
         return {message: "Title updated successfully"}; 
     } catch (error) {
         console.error("Error updating title by subtaskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -236,7 +236,7 @@ async function updateSubtaskAssignedUser(subtaskId, username) {
         return {message: "Assigned user updated successfully"}; 
     } catch (error) {
         console.error("Error updating assigned user by subtaskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -253,7 +253,7 @@ async function updateSubtaskDescription(subtaskId, description) {
         return {message: "Description updated successfully"}; 
     } catch (error) {
         console.error("Error updating description by subtaskId:", error);
-        throw new error;
+        throw error;
     }
 }
 async function updateSubtaskDeadline(subtaskId, deadline) {
@@ -269,7 +269,7 @@ async function updateSubtaskDeadline(subtaskId, deadline) {
         return {message: "Deadline updated successfully"}; 
     } catch (error) {
         console.error("Error updating deadline by subtaskId:", error);
-        throw new error;
+        throw error;
     }
 }
 

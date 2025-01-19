@@ -1,8 +1,8 @@
 //This class is responsible for the Task data, including queries that have to do with tasks
-import db from './database.js';
+import {db} from './database.js';
 
 class Task {
-    constructor(taskId, title, description, status, deadline, priority, createdTime, updatedTime, userId, categoryId) {
+    constructor(taskId, title, description = null, status, deadline, priority, createdTime = null, updatedTime = null, userId, categoryId) {
         this.taskId = taskId;
         this.title = title;
         this.description = description;
@@ -57,7 +57,7 @@ async function addTask(taskData) {
     const {title, description, status, deadline, priority, userId, categoryId} = taskData;
     
     const query = "insert into Task(title, description, status, deadline, priority, userId, categoryId) values (?, ?, ?, ?, ?, ?, ?)";
-    const values = [title, description, status, deadline, priority, userId, categoryId];
+    const values = [title, description ?? null, status ?? 'Pending', deadline, priority ?? 'Low', userId, categoryId];
 
     try {
         const [result] = await db.query(query, values);
@@ -203,7 +203,7 @@ async function updateTaskPriority(taskId, priority) {
         return {message: "Priority updated successfully"}; 
     } catch (error) {
         console.error("Error updating priority by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -220,7 +220,7 @@ async function updateTaskStatus(taskId, status) {
         return {message: "Status updated successfully"}; 
     } catch (error) {
         console.error("Error updating status by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -237,7 +237,7 @@ async function updateTaskTitle(taskId, title) {
         return {message: "Title updated successfully"}; 
     } catch (error) {
         console.error("Error updating title by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -254,7 +254,7 @@ async function updateTaskDescription(taskId, description) {
         return {message: "Description updated successfully"}; 
     } catch (error) {
         console.error("Error updating description by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -271,7 +271,7 @@ async function updateTaskCategory(taskId, category) {
         return {message: "Category updated successfully"}; 
     } catch (error) {
         console.error("Error updating category by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -288,7 +288,7 @@ async function updateTaskDeadline(taskId, deadline) {
         return {message: "Deadline updated successfully"}; 
     } catch (error) {
         console.error("Error updating deadline by taskId:", error);
-        throw new error;
+        throw error;
     }
 }
 

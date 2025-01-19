@@ -1,9 +1,9 @@
 //This class is responsible for the Reminder data, including queries that have to do with reminders
-import db from './database.js';
+import {db} from './database.js';
 import cron from 'node-cron';
 
 class Reminder {
-    constructor(reminderId, message, remindedTime, taskId, subtaskId, userId) {
+    constructor(reminderId, message = null, remindedTime, taskId, subtaskId = null, userId) {
        this.reminderId = reminderId;
        this.message = message;
        this.remindedTime = remindedTime;
@@ -43,7 +43,7 @@ async function addReminder(reminderData) {
     const {message, reminderTime, taskId, subtaskId, userId} = reminderData;
     
     const query = "insert into Reminder(message, reminderTime, taskId, subtaskId) values (?, ?, ?, ?)";
-    const values = [message, reminderTime, taskId, subtaskId, userId];
+    const values = [message ?? null, reminderTime, taskId, subtaskId ?? null, userId];
 
     try {
         const [result] = await db.query(query, values);
@@ -149,7 +149,7 @@ async function updateReminderMessage(reminderId, message) {
         return {message: "message updated successfully"}; 
     } catch (error) {
         console.error("Error updating message by reminderId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -166,7 +166,7 @@ async function updateReminderTime(reminderId, reminderTime) {
         return {message: "reminder time updated successfully"}; 
     } catch (error) {
         console.error("Error updating reminder time by reminderId:", error);
-        throw new error;
+        throw error;
     }
 }
 

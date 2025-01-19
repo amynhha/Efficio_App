@@ -1,5 +1,4 @@
-//TODO: Continue and fix the login test
-import userFunctions from '../src/user.js';
+import User from '../src/user.js';
 import { db } from '../src/database.js';
 import { vi } from 'vitest';
 import bcrypt from 'bcrypt';
@@ -23,6 +22,7 @@ describe("User Functions", () => {
     afterEach(() => {
         vi.clearAllMocks(); // Clear mocks after each test
     });
+
 //registerUser
     test("registerUser should insert a new user and return insertId", async () => {
         const username = "testUser";
@@ -34,7 +34,7 @@ describe("User Functions", () => {
         bcrypt.hash.mockResolvedValue(hashedPassword);
         db.query.mockResolvedValue([{ insertId }]);
 
-        const result = await userFunctions.registerUser({ username, email, password });
+        const result = await User.registerUser({ username, email, password });
 
         expect(bcrypt.hash).toHaveBeenCalledWith(password, 10);
         expect(db.query).toHaveBeenCalledWith(
@@ -43,6 +43,7 @@ describe("User Functions", () => {
         );
         expect(result).toBe(insertId);
     });
+
 //getAllUsers
     test("should return users when the query is successful", async () => {
         const mockUsers = [
@@ -52,7 +53,7 @@ describe("User Functions", () => {
 
         db.query.mockResolvedValue([mockUsers]);
     
-        const result = await userFunctions.getAllUsers();
+        const result = await User.getAllUsers();
     
         expect(db.query).toHaveBeenCalledWith("select * from User");
     
@@ -63,7 +64,7 @@ describe("User Functions", () => {
         db.query.mockResolvedValue([[]]);
     
         try {
-          await userFunctions.getAllUsers();
+          await User.getAllUsers();
         } catch (error) {
           expect(error.message).toBe("No user");
         }
@@ -73,18 +74,19 @@ describe("User Functions", () => {
         db.query.mockRejectedValue(new Error("Database error"));
     
         try {
-          await userFunctions.getAllUsers();
+          await User.getAllUsers();
         } catch (error) {
           expect(error.message).toBe("Database error");
         }
       });
+
 //getUserByID
       test("should return users by ID when the query is successful", async () => {
         const mockUser = { id: 1, username: "user1", email: "user1@example.com" };
 
         db.query.mockResolvedValue([mockUser]);
     
-        const result = await userFunctions.getUserByID(1);
+        const result = await User.getUserByID(1);
     
         expect(db.query).toHaveBeenCalledWith("select * from User where userId = ?", [1]);
         expect(result).toEqual(mockUser);
@@ -94,7 +96,7 @@ describe("User Functions", () => {
         db.query.mockResolvedValue([[]]);
     
         try {
-          await userFunctions.getUserByID(1);
+          await User.getUserByID(1);
         } catch (error) {
           expect(error.message).toBe("User not found");
         }
@@ -104,18 +106,19 @@ describe("User Functions", () => {
         db.query.mockRejectedValue(new Error("Database error"));
     
         try {
-          await userFunctions.getUserByID(1);
+          await User.getUserByID(1);
         } catch (error) {
           expect(error.message).toBe("Database error");
         }
       });
+
 //getUserByUsername
 test("should return users by username when the query is successful", async () => {
     const mockUser = { id: 1, username: "user1", email: "user1@example.com" };
 
     db.query.mockResolvedValue([mockUser]);
 
-    const result = await userFunctions.getUserByUsername("user1");
+    const result = await User.getUserByUsername("user1");
 
     expect(db.query).toHaveBeenCalledWith("select * from User where username = ?", ["user1"]);
     expect(result).toEqual(mockUser);
@@ -125,7 +128,7 @@ test("should return users by username when the query is successful", async () =>
     db.query.mockResolvedValue([[]]);
 
     try {
-      await userFunctions.getUserByUsername("user1");
+      await User.getUserByUsername("user1");
     } catch (error) {
       expect(error.message).toBe("User not found");
     }
@@ -135,18 +138,19 @@ test("should return users by username when the query is successful", async () =>
     db.query.mockRejectedValue(new Error("Database error"));
 
     try {
-      await userFunctions.getUserByUsername("user1");
+      await User.getUserByUsername("user1");
     } catch (error) {
       expect(error.message).toBe("Database error");
     }
   });
+
 //getUserByEmail
 test("should return users by email when the query is successful", async () => {
     const mockUser = { id: 1, username: "user1", email: "user1@example.com" };
 
     db.query.mockResolvedValue([mockUser]);
 
-    const result = await userFunctions.getUserByEmail("user1@example.com");
+    const result = await User.getUserByEmail("user1@example.com");
 
     expect(db.query).toHaveBeenCalledWith("select * from User where email = ?", ["user1@example.com"]);
     expect(result).toEqual(mockUser);
@@ -156,7 +160,7 @@ test("should return users by email when the query is successful", async () => {
     db.query.mockResolvedValue([[]]);
 
     try {
-      await userFunctions.getUserByEmail("user1@example.com");
+      await User.getUserByEmail("user1@example.com");
     } catch (error) {
       expect(error.message).toBe("User not found");
     }
@@ -166,29 +170,29 @@ test("should return users by email when the query is successful", async () => {
     db.query.mockRejectedValue(new Error("Database error"));
 
     try {
-      await userFunctions.getUserByEmail("user1@example.com");
+      await User.getUserByEmail("user1@example.com");
     } catch (error) {
       expect(error.message).toBe("Database error");
     }
   });
+
 //login
   test('should login successfully with valid username and password', async () => {
     const mockUser = {
       username: 'testUser',
-      password: 'correctPassowrd',
+      password: await bcrypt.hash("correctPassword", 10),
       userId: 1,
     };
   
     // Mock db query to return the mock user when a username is searched
-    db.query.mockResolvedValue([mockUser]);
+    db.query.mockResolvedValue([[mockUser]]);
   
-    hashedPassowrd = bcrypt.hash(password);
     // Mock bcrypt.compare to return true when passwords match
     bcrypt.compare.mockResolvedValue(true);
   
     const credentials = { username: 'testUser', password: 'correctPassword' };
   
-    const result = await userFunctions.loginUser(credentials);
+    const result = await User.loginUser(credentials);
   
     // Checking the result message and userId
     expect(result).toEqual({ message: 'Login successful', userId: 1 });
@@ -198,29 +202,142 @@ test("should return users by email when the query is successful", async () => {
     // Mock db query to return empty array (no user found)
     db.query.mockResolvedValue([[]]);
   
-    const credentials = { username: 'nonExistentUser', password: 'password' };
+    const credentials = { username: 'incorrectUser', password: 'correctPassword' };
   
-    await expect(userFunctions.loginUser(credentials)).rejects.toThrow('Invalid credentials');
+    bcrypt.compare.mockResolvedValue(true);
+
+    await expect(User.loginUser(credentials)).rejects.toThrow('Invalid username');
   });
   
   test('should throw error for invalid password', async () => {
     const mockUser = {
       username: 'testUser',
-      password: 'hashedPassword',
+      password: await bcrypt.hash('correctPassword', 10),
       userId: 1,
     };
   
     // Mock db query to return the mock user when the username is searched
-    db.query.mockResolvedValue([mockUser]);
+    db.query.mockResolvedValue([[mockUser]]);
   
     // Mock bcrypt.compare to return false when passwords don't match
     bcrypt.compare.mockResolvedValue(false);
   
     const credentials = { username: 'testUser', password: 'wrongPassword' };
   
-    await expect(userFunctions.loginUser(credentials)).rejects.toThrow('Invalid credentials');
+    await expect(User.loginUser(credentials)).rejects.toThrow('Invalid password');
   });
 
+//deleteUserByID
+test('should delete user by ID successfully', async () => {
+  const mockResult = { affectedRows: 1 };
+  db.query.mockResolvedValue([mockResult]);
 
+  const result = await User.deleteUserByID(1);
 
-    });
+  expect(result).toEqual({ message: "User is successfully deleted" });
+});
+
+test('should throw error if no user with given ID is found to be deleted', async () => {
+  const mockResult = { affectedRows: 0 };
+  db.query.mockResolvedValue([mockResult]);
+
+  await expect(User.deleteUserByID(1)).rejects.toThrow('No user with given ID is found to be deleted');
+});
+
+//deleteUserByUsername
+test('should delete user by username successfully', async () => {
+  const mockResult = { affectedRows: 1 };
+  db.query.mockResolvedValue([mockResult]);
+
+  const result = await User.deleteUserByUsername('testUser');
+
+  expect(result).toEqual({ message: "User is successfully deleted" });
+});
+
+test('should throw error if no user with given username is found to be deleted', async () => {
+  const mockResult = { affectedRows: 0 };
+  db.query.mockResolvedValue([mockResult]);
+
+  await expect(User.deleteUserByUsername('nonExistentUser')).rejects.toThrow('No user with given username is found to be deleted');
+});
+
+//updateUserPassword
+test('should update password successfully', async () => {
+  const mockUser = { 
+    username: 'testUser', 
+    password: await bcrypt.hash('correctPassword', 10), 
+    userId: 1 };
+    
+  db.query.mockResolvedValue([[mockUser]]);
+  bcrypt.compare.mockResolvedValue(true);
+
+  const result = await User.updateUserPassword('correctPassword', 'testUser', 'newPassword');
+
+  expect(result).toEqual({ message: 'Password updated successfully' });
+});
+
+test('should throw error if user is not found during password update', async () => {
+  db.query.mockResolvedValue([[]]);
+
+  await expect(User.updateUserPassword('correctPassword', 'nonExistentUser', 'newPassword')).rejects.toThrow('Invalid credentials');
+});
+
+test('should throw error if password does not match during password update', async () => {
+  const mockUser = { username: 'testUser', password: await bcrypt.hash('correctPassword', 10), userId: 1 };
+  db.query.mockResolvedValue([[mockUser]]);
+  bcrypt.compare.mockResolvedValue(false);
+
+  await expect(User.updateUserPassword('wrongPassword', 'testUser', 'newPassword')).rejects.toThrow('Invalid credentials');
+});
+
+//updateUserEmail
+test('should update email successfully', async () => {
+  const mockUser = { username: 'testUser', password: await bcrypt.hash('correctPassword', 10), userId: 1 };
+  db.query.mockResolvedValue([[mockUser]]);
+  bcrypt.compare.mockResolvedValue(true);
+
+  const result = await User.updateUserEmail('correctPassword', 'testUser', 'newEmail@example.com');
+
+  expect(result).toEqual({ message: 'Email updated successfully' });
+});
+
+test('should throw error if user is not found during email update', async () => {
+  db.query.mockResolvedValue([[]]);
+
+  await expect(User.updateUserEmail('correctPassword', 'nonExistentUser', 'newEmail@example.com')).rejects.toThrow('Invalid credentials');
+});
+
+test('should throw error if password does not match during email update', async () => {
+  const mockUser = { username: 'testUser', password: await bcrypt.hash('correctPassword', 10), userId: 1 };
+  db.query.mockResolvedValue([[mockUser]]);
+  bcrypt.compare.mockResolvedValue(false);
+
+  await expect(User.updateUserEmail('wrongPassword', 'testUser', 'newEmail@example.com')).rejects.toThrow('Invalid credentials');
+});
+
+//updateUsername
+test('should update username successfully', async () => {
+  const mockUser = { username: 'testUser', password: await bcrypt.hash('correctPassword', 10), userId: 1 };
+  db.query.mockResolvedValue([[mockUser]]);
+  bcrypt.compare.mockResolvedValue(true);
+
+  const result = await User.updateUsername('correctPassword', 'testUser@example.com', 'newUsername');
+
+  expect(result).toEqual({ message: 'Username updated successfully' });
+});
+
+test('should throw error if user is not found during username update', async () => {
+  db.query.mockResolvedValue([[]]);
+
+  await expect(User.updateUsername('correctPassword', 'nonExistentUser@example.com', 'newUsername')).rejects.toThrow('Invalid credentials');
+});
+
+test('should throw error if password does not match during username update', async () => {
+  const mockUser = { username: 'testUser', password: await bcrypt.hash('correctPassword', 10), userId: 1 };
+  db.query.mockResolvedValue([[mockUser]]);
+  bcrypt.compare.mockResolvedValue(false);
+
+  await expect(User.updateUsername('wrongPassword', 'testUser@example.com', 'newUsername')).rejects.toThrow('Invalid credentials');
+});
+
+});

@@ -1,8 +1,8 @@
 //This class is responsible for the Category data, including queries that have to do with cetegories.
-import db from "./database";
+import {db} from './database.js';
 
 class Category {
-    constructor(categoryId, categoryName, colorCode) {
+    constructor(categoryId, categoryName, colorCode = null) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.colorCode = colorCode;
@@ -29,7 +29,7 @@ async function addCategory(categoryData) {
     const {categoryName, colorCode} = categoryData;
     
     const query = "insert into Category(categoryName, colorCode) values (?, ?)";
-    const values = [categoryName, colorCode];
+    const values = [categoryName, colorCode ?? null];
 
     try {
         const [result] = await db.query(query, values);
@@ -104,7 +104,7 @@ async function deleteCategoryById(categoryId) {
 }
 
 async function updateCategoryName(categoryId, categoryName) {
-    const query = "update Category set message = ? where categoryId = ?";
+    const query = "update Category set categoryName = ? where categoryId = ?";
     const values = [categoryName, categoryId];
 
     try {
@@ -116,7 +116,7 @@ async function updateCategoryName(categoryId, categoryName) {
         return {message: "category name updated successfully"}; 
     } catch (error) {
         console.error("Error updating category name by categoryId:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -133,7 +133,7 @@ async function updateCategoryColor(categoryId, colorCode) {
         return {message: "color code updated successfully"}; 
     } catch (error) {
         console.error("Error updating color code by categoryId:", error);
-        throw new error;
+        throw error;
     }
 }
 

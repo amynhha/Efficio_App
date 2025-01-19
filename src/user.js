@@ -121,18 +121,19 @@ async function loginUser(credentials) {
         const [user] = await db.query(query, values);
 
         if (!user || user.length == 0) {
-            throw new Error('Invalid credentials');
+            throw new Error('Invalid username');
         }
         
         const matchedPassword = await bcrypt.compare(password, user[0].password);
 
         if (!matchedPassword) {
-            throw new Error('Invalid credentials');
+            throw new Error('Invalid password');
         }
+
         return {message: "Login successful", userId: user[0].userId};
     } catch (error) {
-              console.error('Error logging in:', error);
-              throw new Error('Invalid credentials');
+        console.error('Error logging in:', error);
+        throw error;
     }
 }
 
@@ -178,7 +179,7 @@ async function updateUserPassword(currentPassword, username, newPassword) {
             throw new Error('Invalid credentials');
         }
         
-        const matchedPassword = await bcrypt.compare(password, user[0].password);
+        const matchedPassword = await bcrypt.compare(currentPassword, user[0].password);
 
         if (!matchedPassword) {
             throw new Error('Invalid credentials');
@@ -199,7 +200,6 @@ async function updateUserPassword(currentPassword, username, newPassword) {
         throw error;
     }
 }
-
 
 async function updateUserEmail(password, username, newEmail) {
     try {
@@ -226,7 +226,7 @@ async function updateUserEmail(password, username, newEmail) {
         return {message: "Email updated successfully"}; 
     } catch (error) {
         console.error("Error updating email by username:", error);
-        throw new error;
+        throw error;
     }
 }
 
@@ -256,7 +256,7 @@ async function updateUsername(password, email, newUsername) {
         return {message: "Username updated successfully"}; 
     } catch (error) {
         console.error("Error updating username by email:", error);
-        throw new error;
+        throw error;
     }
 }
 
